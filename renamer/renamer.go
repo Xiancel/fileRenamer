@@ -7,8 +7,12 @@ import (
 	"strings"
 )
 
+// пошук файлів в деректорії
 func FindFile(directory string) ([]string, error) {
+	// змінна для зберегання файлів
 	var files []string
+
+	// пошук і додавання файлів
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -21,17 +25,24 @@ func FindFile(directory string) ([]string, error) {
 	return files, err
 }
 
+// змінна назви файлу
 func RenameFile(pattern, action, value string) ([]mod.RenameResult, error) {
+	// пошук файлів
 	files, err := FindFile(pattern)
 	if err != nil {
 		return nil, err
 	}
 
+	// змінна для хранніня правил на основі вибору користувачем
 	rule := actions(action, value)
 
+	// змінна результату зміни
 	result := make([]mod.RenameResult, 0, len(files))
+	// зміна файлів
 	for _, file := range files {
+		// визов функції змінни
 		res, err := rename(file, rule)
+		// перевірка на помилку
 		if err != nil {
 			res = mod.RenameResult{
 				OldName: file,
@@ -40,14 +51,18 @@ func RenameFile(pattern, action, value string) ([]mod.RenameResult, error) {
 				Error:   err,
 			}
 		}
+		// додавання файлу до змінни result
 		result = append(result, res)
 	}
 	return result, nil
 }
 
+// функція вибору дії
 func actions(action, value string) mod.Rule {
+	// змінна для храніння правил дії
 	var rule mod.Rule
 
+	// перевірка вибору дії і передавання її до змінни
 	switch action {
 	case "prefix":
 		rule.Prefix = value
@@ -69,13 +84,18 @@ func actions(action, value string) mod.Rule {
 		rule.Uppercase = true
 	}
 
+	// повертає вибір діє
 	return rule
 }
 
+// функція перейменування файлів
 func rename(path string, rule mod.Rule) (mod.RenameResult, error) {
-	dir := filepath.Dir(path)
-	oldName := filepath.Base(path)
-	newName := oldName
+	// змінни для хранніння
+	dir := filepath.Dir(path)      // директорії
+	oldName := filepath.Base(path) // старого імені файлу
+	newName := oldName             // нового імені файлу
+
+	// перевірка і змінна імені файлів по правилу дії вибране користувачем
 
 	if rule.Prefix != "" {
 		newName = rule.Prefix + newName
@@ -105,8 +125,10 @@ func rename(path string, rule mod.Rule) (mod.RenameResult, error) {
 		newName = strings.ToUpper(newName)
 	}
 
+	// змінна для храніння нового путі файлу
 	newPath := filepath.Join(dir, newName)
 
+	// перевірка на совпадіння старого путі і нового
 	if path == newPath {
 		return mod.RenameResult{
 			OldName: path,
@@ -116,7 +138,9 @@ func rename(path string, rule mod.Rule) (mod.RenameResult, error) {
 		}, nil
 	}
 
+	// перейменівання файлу
 	err := os.Rename(path, newPath)
+	// змінна для ініціальзації результату
 	result := mod.RenameResult{
 		OldName: path,
 		NewName: newPath,
@@ -124,5 +148,6 @@ func rename(path string, rule mod.Rule) (mod.RenameResult, error) {
 		Error:   err,
 	}
 
+	// повернення зміненог файлу
 	return result, err
 }
