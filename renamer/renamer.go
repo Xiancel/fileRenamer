@@ -28,7 +28,7 @@ func RenameFile(pattern, action, value string) ([]mod.RenameResult, error) {
 
 	// перевірка діректорії на наявність файлів
 	if len(files) == 0 {
-		fmt.Println("\n❌ файли не знайдено")
+		fmt.Println("\n❌ Не знайдено файлів у деректорії")
 	} else {
 		fmt.Printf("\n🔍 Знайдено файлів: %d\n\n", len(files))
 	}
