@@ -14,7 +14,7 @@
 - **uppercase** - перевести в верхній регістр
 
 # ShowCase
-Подивитися можна тут [0.0]()
+Подивитися можна тут [0.0](ShowCase.md)
 
 # Clone the Repository
 ```git
