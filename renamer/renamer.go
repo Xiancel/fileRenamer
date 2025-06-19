@@ -2,6 +2,7 @@ package renamer
 
 import (
 	mod "filerenamer/model"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,19 +11,11 @@ import (
 // пошук файлів в деректорії
 func FindFile(directory string) ([]string, error) {
 	// змінна для зберегання файлів
-	var files []string
-
-	// пошук і додавання файлів
-	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			files = append(files, path)
-		}
-		return nil
-	})
-	return files, err
+	files, err := filepath.Glob(directory)
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
 }
 
 // змінна назви файлу
@@ -33,11 +26,18 @@ func RenameFile(pattern, action, value string) ([]mod.RenameResult, error) {
 		return nil, err
 	}
 
+	// перевірка діректорії на наявність файлів
+	if len(files) == 0 {
+		fmt.Println("\n❌ файли не знайдено")
+	} else {
+		fmt.Printf("\n🔍 Знайдено файлів: %d\n\n", len(files))
+	}
 	// змінна для хранніня правил на основі вибору користувачем
 	rule := actions(action, value)
-
 	// змінна результату зміни
 	result := make([]mod.RenameResult, 0, len(files))
+	count := 0
+
 	// зміна файлів
 	for _, file := range files {
 		// визов функції змінни
@@ -53,7 +53,18 @@ func RenameFile(pattern, action, value string) ([]mod.RenameResult, error) {
 		}
 		// додавання файлу до змінни result
 		result = append(result, res)
+		oldName := filepath.Base(res.OldName)
+		newName := filepath.Base(res.NewName)
+
+		fmt.Printf("%s - %s\n", oldName, newName)
+		if res.Success {
+			count++
+		}
 	}
+	if count > 0 {
+		fmt.Printf("\n✅ Успішно перейменовано: %d файли(ів)\n", count)
+	}
+
 	return result, nil
 }
 
@@ -118,16 +129,23 @@ func rename(path string, rule mod.Rule) (mod.RenameResult, error) {
 	}
 
 	if rule.Lowercase {
-		newName = strings.ToLower(newName)
+		ext := filepath.Ext(newName)
+		name := strings.TrimSuffix(newName, ext)
+		name = strings.ToLower(name)
+		newName = name + ext
 	}
 
 	if rule.Uppercase {
-		newName = strings.ToUpper(newName)
+		ext := filepath.Ext(newName)
+		name := strings.TrimSuffix(newName, ext)
+		name = strings.ToUpper(name)
+		newName = name + ext
 	}
 
+	newName = strings.TrimSpace(newName)
+	newName = filepath.Base(newName)
 	// змінна для храніння нового путі файлу
 	newPath := filepath.Join(dir, newName)
-
 	// перевірка на совпадіння старого путі і нового
 	if path == newPath {
 		return mod.RenameResult{
