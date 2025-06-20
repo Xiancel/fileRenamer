@@ -39,7 +39,7 @@ func Inputs() {
 	if action != "lowercase" && action != "uppercase" {
 		value = ValueToAdd(action)
 	}
-	if value != "" {
+	if value != "" || action == "lowercase" || action == "uppercase" {
 		pattern := filepath.Join(dir, templ)       // обьєднує діректорію і розширення
 		renamer.RenameFile(pattern, action, value) // виклик функції rename
 	}
