@@ -28,7 +28,7 @@ func RenameFile(pattern, action, value string) ([]mod.RenameResult, error) {
 
 	// перевірка діректорії на наявність файлів
 	if len(files) == 0 {
-		fmt.Println("\n❌ Не знайдено файлів у деректорії")
+		return nil, fmt.Errorf("\n❌ Не знайдено файлів у деректорії")
 	} else {
 		fmt.Printf("\n🔍 Знайдено файлів: %d\n\n", len(files))
 	}
@@ -56,7 +56,7 @@ func RenameFile(pattern, action, value string) ([]mod.RenameResult, error) {
 		oldName := filepath.Base(res.OldName)
 		newName := filepath.Base(res.NewName)
 
-		fmt.Printf("%s - %s\n", oldName, newName)
+		fmt.Printf("• %s → %s\n", oldName, newName)
 		if res.Success {
 			count++
 		}

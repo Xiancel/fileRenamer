@@ -40,30 +40,32 @@ func Inputs() {
 		value = ValueToAdd(action)
 	}
 	if value != "" || action == "lowercase" || action == "uppercase" {
-		pattern := filepath.Join(dir, templ)       // обьєднує діректорію і розширення
-		renamer.RenameFile(pattern, action, value) // виклик функції rename
+		pattern := filepath.Join(dir, templ)                 // обьєднує діректорію і розширення
+		_, err := renamer.RenameFile(pattern, action, value) // виклик функції rename
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }
 
 // повертає значення для додавання
 func ValueToAdd(action string) string {
-	var input string
+	var prompt string
 	switch action {
 	case "prefix":
-		fmt.Println("\nВведіть значення для додавання як префікс:")
-		input = getInput("> ")
+		prompt = "\nВведіть значення для додавання як префікс:"
 	case "suffix":
-		fmt.Println("\nВведіть значення для додавання як суфікс:")
-		input = getInput("> ")
+		prompt = "\nВведіть значення для додавання як суфікс:"
 	case "replace":
-		fmt.Println("\nВведіть значення для замінни(через пробіл, наприклад text new):")
-		input = getInput("> ")
+		prompt = "\nВведіть значення для замінни(через пробіл, наприклад text new):"
 	case "extension":
-		fmt.Println("\nВведіть значення для змінненя розширення(без крапки):")
-		input = getInput("> ")
+		prompt = "\nВведіть значення для змінненя розширення(без крапки):"
 	default:
 		fmt.Println("\nТакой дії не існує")
 		return ""
 	}
+	fmt.Println(prompt)
+	input := getInput("> ")
 	return input
 }
